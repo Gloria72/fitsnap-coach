@@ -1,0 +1,18 @@
+{
+  "name": "fitsnap-coach",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first AI fitness, nutrition, recovery, and form-coaching web MVP.",
+  "scripts": {
+    "start": "python3 -m http.server 4173",
+    "serve": "python3 -m http.server 4173"
+  },
+  "keywords": [
+    "fitness",
+    "nutrition",
+    "pose-detection",
+    "movenet",
+    "ai-coach"
+  ],
+  "license": "UNLICENSED"
+}

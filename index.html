@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FitSnap Coach</title>
+    <link rel="icon" href="assets/brand-mark.svg" />
+    <link rel="stylesheet" href="styles.css?v=4" />
+    <script src="app.js?v=4" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="#dashboard" aria-label="FitSnap Coach 仪表盘">
+        <img src="assets/brand-mark.svg" alt="" />
+        <span>
+          <strong>FitSnap Coach</strong>
+          <small>AI 健身营养教练</small>
+        </span>
+      </a>
+      <nav class="top-nav" aria-label="主导航">
+        <a href="#dashboard">今日</a>
+        <a href="#agent">Agent</a>
+        <a href="#insights">趋势</a>
+        <a href="#profile">目标</a>
+        <a href="#nutrition">饮食</a>
+        <a href="#training">训练</a>
+        <a href="#motion">动作</a>
+        <a href="#health">健康</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-button" id="languageToggle" type="button" title="Switch language">
+          <span aria-hidden="true">Aa</span>
+          <span>EN</span>
+        </button>
+        <button class="icon-button" id="resetDemo" type="button" title="重置本地演示数据">
+          <span aria-hidden="true">↻</span>
+          <span>重置</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="section-block" id="dashboard" aria-labelledby="dashboardTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" id="todayLabel">Today</p>
+            <h1 id="dashboardTitle">今日状态</h1>
+          </div>
+          <div class="status-chip" id="saveStatus">本地保存</div>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="card readiness-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Readiness</p>
+                <h2>恢复评分</h2>
+              </div>
+              <span class="score-badge" id="stressLabel">--</span>
+            </div>
+            <div class="readiness-layout">
+              <div class="score-ring" id="readinessRing" aria-label="恢复评分">
+                <span id="readinessScore">--</span>
+              </div>
+              <div class="metric-list" id="healthSnapshot"></div>
+            </div>
+            <p class="fine-print">压力负荷为训练恢复代理指标，不等同于皮质醇检测或医疗诊断。</p>
+          </article>
+
+          <article class="card nutrition-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Nutrition</p>
+                <h2>热量与宏量</h2>
+              </div>
+              <span class="score-badge warm" id="calorieDelta">--</span>
+            </div>
+            <div class="calorie-row">
+              <div>
+                <span class="label">已摄入</span>
+                <strong id="caloriesIn">0</strong>
+              </div>
+              <div>
+                <span class="label">目标</span>
+                <strong id="caloriesTarget">--</strong>
+              </div>
+            </div>
+            <div class="macro-bars" id="macroBars"></div>
+          </article>
+
+          <article class="card coach-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">AI Coach</p>
+                <h2>今日建议</h2>
+              </div>
+              <button class="icon-button compact" id="refreshCoach" type="button" title="刷新建议">
+                <span aria-hidden="true">↻</span>
+                <span>刷新</span>
+              </button>
+            </div>
+            <div class="coach-output" id="coachOutput"></div>
+          </article>
+
+          <article class="card visual-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Motion</p>
+                <h2>动作快照</h2>
+              </div>
+              <span class="score-badge blue" id="formScoreMini">--</span>
+            </div>
+            <canvas id="poseCanvas" width="520" height="320" aria-label="动作分析图"></canvas>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="agent" aria-labelledby="agentTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Agent Workspace</p>
+            <h2 id="agentTitle">AI Agent 工作台</h2>
+          </div>
+          <span class="status-chip" id="agentStatus">Agent 待命</span>
+        </div>
+
+        <div class="agent-grid">
+          <article class="card agent-console">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Think / Plan / Act</p>
+                <h2>Agent 对话</h2>
+              </div>
+              <button class="icon-button compact" id="runAgent" type="button" title="运行 Agent">
+                <span aria-hidden="true">◎</span>
+                <span>运行 Agent</span>
+              </button>
+            </div>
+            <div class="agent-stream" id="agentStream" aria-live="polite"></div>
+            <form class="agent-form" id="agentForm">
+              <textarea id="agentPromptInput" name="agentPrompt" rows="3" placeholder="告诉 Agent：今天时间不多、想练臀腿、晚餐怎么吃..."></textarea>
+              <button class="primary-button" type="submit">
+                <span aria-hidden="true">↗</span>
+                <span>发送</span>
+              </button>
+            </form>
+          </article>
+
+          <article class="card agent-actions">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Action Queue</p>
+                <h2>行动队列</h2>
+              </div>
+              <button class="secondary-button compact" id="rerunAgent" type="button">
+                <span aria-hidden="true">↻</span>
+                <span>重新规划</span>
+              </button>
+            </div>
+            <div class="agent-task-list" id="agentTaskList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="insights" aria-labelledby="insightsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Progress Lab</p>
+            <h2 id="insightsTitle">周/月互动趋势</h2>
+          </div>
+          <span class="status-chip" id="databaseStatus">IndexedDB</span>
+        </div>
+
+        <div class="insights-grid">
+          <article class="card chart-card">
+            <div class="chart-toolbar">
+              <div class="segmented-control" id="insightPeriodControls" aria-label="趋势周期">
+                <button type="button" data-period="week" class="active">周</button>
+                <button type="button" data-period="month">月</button>
+              </div>
+              <label class="compact-label">
+                指标
+                <select id="insightMetricInput">
+                  <option value="calories">热量摄入</option>
+                  <option value="protein">蛋白质</option>
+                  <option value="workouts">训练完成</option>
+                  <option value="readiness">恢复评分</option>
+                  <option value="formScore">动作评分</option>
+                  <option value="uploads">上传次数</option>
+                </select>
+              </label>
+            </div>
+            <div class="chart-frame">
+              <canvas id="trendCanvas" width="920" height="360" aria-label="用户历史趋势图"></canvas>
+              <div class="chart-tooltip" id="chartTooltip" hidden></div>
+            </div>
+          </article>
+
+          <article class="card insights-side">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Summary</p>
+                <h2>数据摘要</h2>
+              </div>
+            </div>
+            <div class="insight-summary" id="insightSummary"></div>
+            <div class="upload-timeline" id="uploadTimeline"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="profile" aria-labelledby="profileTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Goal Engine</p>
+            <h2 id="profileTitle">目标设置</h2>
+          </div>
+          <span class="status-chip" id="goalMode">--</span>
+        </div>
+
+        <div class="two-column">
+          <form class="card form-card" id="profileForm">
+            <div class="form-grid">
+              <label>
+                姓名
+                <input id="nameInput" name="name" type="text" autocomplete="name" />
+              </label>
+              <label>
+                年龄
+                <input id="ageInput" name="age" type="number" min="13" max="90" />
+              </label>
+              <label>
+                生理性别
+                <select id="sexInput" name="sex">
+                  <option value="female">女性</option>
+                  <option value="male">男性</option>
+                </select>
+              </label>
+              <label>
+                身高 cm
+                <input id="heightInput" name="height" type="number" min="120" max="230" step="1" />
+              </label>
+              <label>
+                当前体重 kg
+                <input id="currentWeightInput" name="currentWeight" type="number" min="35" max="220" step="0.1" />
+              </label>
+              <label>
+                目标体重 kg
+                <input id="targetWeightInput" name="targetWeight" type="number" min="35" max="220" step="0.1" />
+              </label>
+              <label>
+                活动水平
+                <select id="activityInput" name="activity">
+                  <option value="sedentary">久坐</option>
+                  <option value="light">轻度活动</option>
+                  <option value="moderate">中等活动</option>
+                  <option value="high">高活动</option>
+                </select>
+              </label>
+              <label>
+                训练经验
+                <select id="experienceInput" name="experience">
+                  <option value="beginner">新手</option>
+                  <option value="intermediate">有基础</option>
+                  <option value="advanced">进阶</option>
+                </select>
+              </label>
+              <label>
+                每周训练天数
+                <input id="trainingDaysInput" name="trainingDays" type="number" min="2" max="6" step="1" />
+              </label>
+              <label>
+                想练成的效果
+                <select id="physiqueInput" name="physique">
+                  <option value="减脂线条">减脂线条</option>
+                  <option value="增肌塑形">增肌塑形</option>
+                  <option value="体态改善">体态改善</option>
+                  <option value="力量提升">力量提升</option>
+                  <option value="马甲线核心">马甲线核心</option>
+                  <option value="翘臀下肢">翘臀下肢</option>
+                </select>
+              </label>
+              <label>
+                饮食偏好
+                <input id="dietInput" name="diet" type="text" placeholder="高蛋白、少乳制品、素食..." />
+              </label>
+              <label>
+                器械条件
+                <select id="equipmentInput" name="equipment">
+                  <option value="home">居家</option>
+                  <option value="gym">健身房</option>
+                  <option value="minimal">徒手/弹力带</option>
+                </select>
+              </label>
+              <label class="full-span">
+                伤病或禁忌
+                <textarea id="injuriesInput" name="injuries" rows="3" placeholder="膝盖不适、腰椎间盘、肩撞击..."></textarea>
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="submit">
+                <span aria-hidden="true">✓</span>
+                <span>保存并生成计划</span>
+              </button>
+            </div>
+          </form>
+
+          <article class="card target-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Targets</p>
+                <h2>目标摘要</h2>
+              </div>
+            </div>
+            <div class="target-summary" id="targetSummary"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="nutrition" aria-labelledby="nutritionTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Food Log</p>
+            <h2 id="nutritionTitle">饮食记录</h2>
+          </div>
+          <span class="status-chip" id="mealCount">0 条</span>
+        </div>
+
+        <div class="two-column">
+          <form class="card form-card" id="mealForm">
+            <div class="form-grid">
+              <label>
+                餐次
+                <select id="mealTypeInput" name="mealType">
+                  <option value="早餐">早餐</option>
+                  <option value="午餐">午餐</option>
+                  <option value="晚餐">晚餐</option>
+                  <option value="加餐">加餐</option>
+                </select>
+              </label>
+              <label>
+                餐食描述
+                <input id="mealDescriptionInput" name="mealDescription" type="text" placeholder="鸡胸肉饭、牛油果沙拉、拿铁..." />
+              </label>
+              <label class="file-picker full-span">
+                餐食照片
+                <input id="mealPhotoInput" name="mealPhoto" type="file" accept="image/*" />
+                <span class="file-surface">
+                  <span aria-hidden="true">＋</span>
+                  <span id="mealFileName">选择照片</span>
+                </span>
+              </label>
+            </div>
+            <div class="media-preview" id="mealPreview"><span class="placeholder">未选择照片</span></div>
+            <div class="button-row">
+              <button class="primary-button" type="submit">
+                <span aria-hidden="true">＋</span>
+                <span>估算并记录</span>
+              </button>
+            </div>
+          </form>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Today</p>
+                <h2>餐食明细</h2>
+              </div>
+            </div>
+            <div class="meal-list" id="mealList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="training" aria-labelledby="trainingTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Weekly Plan</p>
+            <h2 id="trainingTitle">训练计划</h2>
+          </div>
+          <span class="status-chip" id="trainingProgress">--</span>
+        </div>
+        <div class="training-grid" id="trainingGrid"></div>
+      </section>
+
+      <section class="section-block" id="motion" aria-labelledby="motionTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Form Check</p>
+            <h2 id="motionTitle">照片/视频动作分析</h2>
+          </div>
+          <span class="status-chip" id="poseModelStatus">Pose 模型未加载</span>
+        </div>
+
+        <div class="two-column">
+          <form class="card form-card" id="formAnalysisForm">
+            <div class="form-grid">
+              <label>
+                动作
+                <select id="exerciseTypeInput" name="exerciseType">
+                  <option value="squat">深蹲</option>
+                  <option value="deadlift">硬拉</option>
+                  <option value="pushup">俯卧撑</option>
+                  <option value="lunge">弓步</option>
+                  <option value="plank">平板支撑</option>
+                  <option value="bench">卧推</option>
+                  <option value="row">划船</option>
+                  <option value="press">肩推</option>
+                </select>
+              </label>
+              <label>
+                拍摄角度
+                <select id="cameraAngleInput" name="cameraAngle">
+                  <option value="side">侧面</option>
+                  <option value="front">正面</option>
+                  <option value="diagonal">45 度</option>
+                </select>
+              </label>
+              <label class="file-picker full-span">
+                照片或视频
+                <input id="formMediaInput" name="formMedia" type="file" accept="image/*,video/*" capture="environment" />
+                <span class="file-surface" id="formFileSurface">
+                  <span aria-hidden="true">＋</span>
+                  <span id="formFileName">选择媒体</span>
+                </span>
+              </label>
+            </div>
+            <div class="media-preview tall" id="formPreview"><span class="placeholder">未选择媒体</span></div>
+            <div class="button-row">
+              <button class="primary-button" type="submit">
+                <span aria-hidden="true">▣</span>
+                <span>生成动作反馈</span>
+              </button>
+              <button class="secondary-button" id="loadPoseModel" type="button">
+                <span aria-hidden="true">◎</span>
+                <span>加载 Pose 模型</span>
+              </button>
+              <button class="secondary-button" id="startMotionCamera" type="button">
+                <span aria-hidden="true">◉</span>
+                <span>实时摄像</span>
+              </button>
+              <button class="secondary-button" id="stopMotionCamera" type="button" disabled>
+                <span aria-hidden="true">■</span>
+                <span>停止摄像</span>
+              </button>
+            </div>
+          </form>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Analysis</p>
+                <h2>动作反馈</h2>
+              </div>
+            </div>
+            <div class="analysis-output" id="analysisOutput"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="health" aria-labelledby="healthTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Apple Health</p>
+            <h2 id="healthTitle">恢复数据</h2>
+          </div>
+          <span class="status-chip" id="healthAuthStatus">未授权</span>
+        </div>
+
+        <div class="two-column">
+          <form class="card form-card" id="healthForm">
+            <div class="button-row split">
+              <button class="secondary-button" type="button" id="connectHealth">
+                <span aria-hidden="true">✓</span>
+                <span>模拟授权</span>
+              </button>
+              <label class="secondary-button file-inline">
+                <span aria-hidden="true">＋</span>
+                <span>导入 JSON/CSV</span>
+                <input id="healthImportInput" type="file" accept=".json,.csv,text/csv,application/json" />
+              </label>
+            </div>
+            <div class="form-grid">
+              <label>
+                睡眠小时
+                <input id="sleepInput" name="sleep" type="number" min="0" max="14" step="0.1" />
+              </label>
+              <label>
+                HRV ms
+                <input id="hrvInput" name="hrv" type="number" min="5" max="200" step="1" />
+              </label>
+              <label>
+                静息心率
+                <input id="rhrInput" name="rhr" type="number" min="35" max="120" step="1" />
+              </label>
+              <label>
+                血氧 %
+                <input id="spo2Input" name="spo2" type="number" min="80" max="100" step="0.1" />
+              </label>
+              <label>
+                步数
+                <input id="stepsInput" name="steps" type="number" min="0" max="60000" step="100" />
+              </label>
+              <label>
+                活动能量 kcal
+                <input id="activeEnergyInput" name="activeEnergy" type="number" min="0" max="4000" step="10" />
+              </label>
+              <label class="full-span">
+                训练负荷 0-100
+                <input id="workoutLoadInput" name="workoutLoad" type="range" min="0" max="100" step="1" />
+              </label>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="submit">
+                <span aria-hidden="true">✓</span>
+                <span>保存恢复数据</span>
+              </button>
+            </div>
+          </form>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Recovery</p>
+                <h2>恢复判断</h2>
+              </div>
+            </div>
+            <div class="health-output" id="healthOutput"></div>
+            <p class="fine-print">Web 版无法直接访问 HealthKit；真实授权需 iOS 原生能力。</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
