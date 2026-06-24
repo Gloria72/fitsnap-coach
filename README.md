@@ -1,10 +1,39 @@
 # FitSnap Coach
 
-FitSnap Coach is a local-first AI fitness and nutrition coach MVP. It covers Phase 0 of the PRD: goal setup, daily calories and macros, weekly training plans, photo/video form analysis, simulated Apple Health access, recovery scoring, an AI Coach Agent workspace, and interactive weekly/monthly trends.
+[![Live Demo](https://img.shields.io/badge/live-demo-2f8a67?style=flat-square)](https://fitsnap-coach.vercel.app)
+[![Static Web App](https://img.shields.io/badge/static-web%20app-3f72d8?style=flat-square)](#run-locally)
+[![Local First](https://img.shields.io/badge/local--first-IndexedDB-17212b?style=flat-square)](#local-data-model)
+[![MoveNet](https://img.shields.io/badge/pose-MoveNet-f4c95d?style=flat-square)](#pose-model-integration)
 
-## Run
+FitSnap Coach is a bilingual, local-first AI fitness coach MVP that turns goals,
+meals, workouts, movement media, and recovery metrics into a daily action plan.
+It runs as a static website, stores user data in the browser, and includes a
+browser-side agent workspace for nutrition, training, form, and recovery tasks.
 
-Open `index.html` directly in a browser. If the browser restricts IndexedDB on `file://`, run this from the project directory:
+[Open the live demo](https://fitsnap-coach.vercel.app) or run it locally in one
+command.
+
+![FitSnap Coach dashboard](docs/assets/fitsnap-dashboard.png)
+
+## Why Star This Repo
+
+- **Complete AI fitness product loop:** goal setup, calorie and macro targets,
+  meal logging, training plans, form checks, recovery scoring, trend charts, and
+  an agent action queue.
+- **Local-first privacy model:** IndexedDB is the primary database, with
+  LocalStorage fallback. User media and health data are not uploaded to a server.
+- **Real pose pipeline path:** TensorFlow.js and MoveNet SinglePose Lightning can
+  run in the browser for keypoint detection, with a rule-based fallback when the
+  model or network is unavailable.
+- **Deploys like a static app:** no backend, no build step, no API key required
+  for the MVP.
+- **Useful reference architecture:** a compact vanilla JavaScript example for
+  AI product prototyping, health-tech UX, and browser-only persistence.
+
+## Run Locally
+
+Open `index.html` directly in a browser. If the browser restricts IndexedDB on
+`file://`, run this from the project directory:
 
 ```bash
 python3 -m http.server 4173
@@ -16,65 +45,22 @@ Then open:
 http://127.0.0.1:4173/index.html
 ```
 
-Data is stored locally in the browser. IndexedDB is the primary database, with LocalStorage as a compatibility backup. Media and health data are not uploaded to any server.
+## Feature Map
 
-## Cloud Deployment
-
-This MVP can be opened from the cloud as a static website, similar to a public web app.
-
-Production URL:
-
-```text
-https://fitsnap-coach.vercel.app
-```
-
-### Vercel
-
-1. Push this folder to a GitHub repository.
-2. Import the repository in Vercel.
-3. Use the default static-site settings. No build command is required.
-4. Vercel will serve `index.html` over HTTPS.
-
-The included `vercel.json` sets basic browser security headers and allows camera access from the same origin for live form checks.
-
-### Netlify
-
-1. Push this folder to a GitHub repository or drag the folder into Netlify Deploys.
-2. Netlify should publish the project root.
-3. No build command is required.
-
-The included `netlify.toml` publishes the static root and sets matching security headers.
-
-### Cloud Data Sync
-
-The current cloud deployment is **cloud-openable**, not yet **cloud-synced**. User data still lives in the visitor's browser through IndexedDB. To sync data across devices, add:
-
-- Authentication: Clerk, Supabase Auth, Firebase Auth, or Auth.js.
-- Database: Supabase Postgres, Firebase Firestore, Neon, or PlanetScale.
-- Media storage: Supabase Storage, S3, R2, or Firebase Storage.
-- API layer: Next.js API routes, FastAPI, or serverless functions.
-- AI services: hosted LLM calls for the Agent and server-side media analysis jobs.
-
-Camera access requires HTTPS in production. Vercel and Netlify provide HTTPS automatically.
-
-## Features
-
-- Switch the website language between Chinese and English.
-- Calculate calorie and macro targets from current weight, target weight, height, age, and activity level.
-- Generate a 7-day training plan and mark workouts as completed.
-- Log meals from a photo or text description using rule-based calorie and macro estimates.
-- Upload exercise photos or videos and receive simulated form score, risk, compensation, and correction feedback.
-- Load a browser-side MoveNet pose model through TensorFlow.js for real keypoint detection when network access is available.
-- Use live camera mode for real-time, on-device pose preview with a skeleton overlay and continuously refreshed form feedback.
-- Run a local AI Coach Agent that observes user data, reasons about priority, generates an action queue, and lets the user open or complete tasks.
-- Simulate Apple Health authorization, manually enter health metrics, or import JSON/CSV health data.
-- Generate a recovery score from sleep, HRV, resting heart rate, SpO2, steps, and training load.
-- Store meal history, workout completions, form analyses, health snapshots, and media metadata in IndexedDB.
-- View interactive weekly/monthly charts for calories, protein, workouts, readiness, form score, and upload count.
+| Area | What is included |
+| --- | --- |
+| Goals | Body metrics, target weight, activity level, training experience, equipment, injuries |
+| Nutrition | Calorie and macro targets, photo or text meal logging, editable estimates |
+| Training | 7-day plan generation, workout completion tracking, recovery-aware advice |
+| Form analysis | Photo/video upload, MoveNet keypoints when available, rule-based scoring fallback |
+| Live motion | Camera preview, skeleton overlay, refreshed form feedback |
+| Recovery | Simulated Apple Health authorization, JSON/CSV import, sleep, HRV, RHR, SpO2, steps, load |
+| Agent | Local observe/reason/act loop, task queue, section deep links, persisted messages |
+| Trends | Weekly and monthly charts for calories, protein, workouts, readiness, form, uploads |
 
 ## Pose Model Integration
 
-The form analysis pipeline now uses a hybrid approach:
+The form analysis pipeline uses a hybrid approach:
 
 ```text
 uploaded photo/video
@@ -85,13 +71,19 @@ uploaded photo/video
 -> coach-readable feedback
 ```
 
-The model is loaded dynamically from jsDelivr only when the user clicks **Load pose model** or runs a form analysis. If TensorFlow.js, the pose model, or reliable keypoints are unavailable, the app falls back to the local rule-based analysis so the product remains usable offline.
+The model is loaded dynamically from jsDelivr only when the user clicks
+**Load pose model** or runs a form analysis. If TensorFlow.js, the pose model, or
+reliable keypoints are unavailable, the app falls back to local rule-based
+analysis so the product remains usable offline.
 
-Live camera mode uses `navigator.mediaDevices.getUserMedia` and MoveNet in the browser. It renders a skeleton overlay and live feedback, but it does not save every frame to history. To persist a form-analysis record, upload a photo/video and run **Generate form feedback**.
+Live camera mode uses `navigator.mediaDevices.getUserMedia` and MoveNet in the
+browser. It renders a skeleton overlay and live feedback, but it does not save
+every frame to history. To persist a form-analysis record, upload a photo/video
+and run **Generate form feedback**.
 
 ## AI Coach Agent
 
-The Agent workspace uses a local rule-based agent loop:
+The agent workspace uses a local rule-based loop:
 
 ```text
 observe local profile, meals, training, form, health, and trend data
@@ -101,9 +93,11 @@ observe local profile, meals, training, form, health, and trend data
 -> persist the messages and tasks in IndexedDB
 ```
 
-This gives the product an agent-like workflow without requiring a backend or API key. A production build can replace the local reasoning layer with an LLM call while keeping the same context builder, task schema, and safety boundaries.
+This gives the product an agent-like workflow without requiring a backend or API
+key. A production build can replace the local reasoning layer with an LLM call
+while keeping the same context builder, task schema, and safety boundaries.
 
-## Local Database
+## Local Data Model
 
 The IndexedDB database is named `fitsnap-coach-db`.
 
@@ -121,6 +115,51 @@ Object stores:
 - `agentTasks`
 - `agentMessages`
 
+## Deployment
+
+Production URL:
+
+```text
+https://fitsnap-coach.vercel.app
+```
+
+### Vercel
+
+1. Push this folder to a GitHub repository.
+2. Import the repository in Vercel.
+3. Use the default static-site settings. No build command is required.
+4. Vercel will serve `index.html` over HTTPS.
+
+The included `vercel.json` sets browser security headers and allows camera
+access from the same origin for live form checks.
+
+### Netlify
+
+1. Push this folder to a GitHub repository or drag the folder into Netlify
+   Deploys.
+2. Netlify should publish the project root.
+3. No build command is required.
+
+The included `netlify.toml` publishes the static root and sets matching security
+headers.
+
+## Roadmap
+
+- Add a real social preview image to the GitHub repository settings.
+- Add a license before asking external contributors to reuse or fork the code.
+- Add hosted LLM calls for the agent while preserving local privacy boundaries.
+- Add optional auth, cloud sync, and media storage for cross-device continuity.
+- Add automated smoke tests for local persistence, language switching, and core
+  agent flows.
+
+## Growth Notes
+
+See [docs/star-growth-playbook.md](docs/star-growth-playbook.md) for GitHub
+metadata, launch checklist, and ready-to-post English and Chinese copy.
+
 ## Health Boundary
 
-This MVP does not provide medical diagnosis and does not directly measure cortisol. The recovery score uses proxy signals from health and training data to estimate stress load trends. If heart rate, blood oxygen, sleep, or physical symptoms remain abnormal, users should consult a qualified professional.
+FitSnap Coach does not provide medical diagnosis and does not directly measure
+cortisol. The recovery score uses proxy signals from health and training data to
+estimate stress load trends. If heart rate, blood oxygen, sleep, or physical
+symptoms remain abnormal, users should consult a qualified professional.
