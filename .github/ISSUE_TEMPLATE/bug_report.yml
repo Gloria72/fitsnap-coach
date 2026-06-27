@@ -1,0 +1,74 @@
+name: Bug report
+description: Report something that is not working as expected.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve FitSnap Coach. Please avoid sharing private health data, real meal photos, or identifying screenshots unless you have removed sensitive details.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+      placeholder: The recovery score does not update after adding a sleep entry.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the smallest set of steps that reproduces the issue.
+      placeholder: |
+        1. Open the dashboard.
+        2. Add a sleep entry.
+        3. Refresh the page.
+        4. Check the recovery panel.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: The recovery score should include the new sleep entry.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: The recovery score stays unchanged.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Dashboard
+        - Meal logging
+        - Workout planning
+        - MoveNet form checks
+        - Recovery scoring
+        - Agent task workspace
+        - Local storage / IndexedDB
+        - Deployment / hosting
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Chrome 126 on macOS, Safari on iPhone, etc.
+    validations:
+      required: false
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output or screenshots
+      description: Paste relevant console errors or attach redacted screenshots.
+      render: text
+    validations:
+      required: false
