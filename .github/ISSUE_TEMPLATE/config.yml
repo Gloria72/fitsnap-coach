@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Project README
+    url: https://github.com/Gloria72/fitsnap-coach#readme
+    about: Start here for setup, demo, and project scope.
+  - name: Growth playbook
+    url: https://github.com/Gloria72/fitsnap-coach/blob/main/docs/star-growth-playbook.md
+    about: Roadmap and repository improvement ideas.

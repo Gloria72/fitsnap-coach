@@ -1,0 +1,55 @@
+name: Feature request
+description: Suggest a focused improvement for FitSnap Coach.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing an idea. The best requests describe the user workflow, not just the UI change.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or user need
+      description: What user problem should this solve?
+      placeholder: I want to compare recovery trends against workout intensity so I can adjust training load.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest useful version of the feature.
+      placeholder: Add a 7-day overlay that compares recovery score and workout volume.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Product area
+      options:
+        - Dashboard
+        - Meal logging
+        - Workout planning
+        - MoveNet form checks
+        - Recovery scoring
+        - Agent task workspace
+        - Data export / privacy
+        - Deployment / hosting
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds or simpler options have you considered?
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Add mockups, examples, links, or constraints if helpful.
+    validations:
+      required: false
